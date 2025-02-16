@@ -246,7 +246,72 @@ if ($key !== "") {
         exit;
     }
 } else {
-    echo json_encode(['error' => '空页面。'], JSON_UNESCAPED_UNICODE);
+    echo "
+<!DOCTYPE html>
+<html lang='zh-CN'>
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <title>404 错误</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(to right, #f8f9fa, #e9ecef);
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .error-container {
+            text-align: center;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+        }
+        .error-container h1 {
+            font-size: 120px;
+            font-weight: 600;
+            color: #e74c3c;
+        }
+        .error-container p {
+            font-size: 18px;
+            color: #555;
+            margin-bottom: 30px;
+        }
+        .error-container a {
+            font-size: 18px;
+            color: #007bff;
+            text-decoration: none;
+            padding: 10px 20px;
+            border: 2px solid #007bff;
+            border-radius: 30px;
+            transition: all 0.3s;
+        }
+        .error-container a:hover {
+            background-color: #007bff;
+            color: #fff;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class='error-container'>
+        <h1>404</h1>
+        <p>哎呀，您访问的页面不存在！</p>
+        <a href='" . ADMIN_PATH . "'>返回主页</a>
+    </div>
+</body>
+</html>
+";
     exit;
 }
 
