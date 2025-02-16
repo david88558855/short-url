@@ -44,17 +44,28 @@ function getDbConnection() {
             last_rule_update DATE,
             last_visits_update DATE
         );
-
-        INSERT INTO short_rules (id) SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM short_rules);
     ";
 
     if ($conn->multi_query($sql) === TRUE) {
+        // 清空结果集
         while ($conn->more_results() && $conn->next_result()) {
-            // 清空结果集
             $conn->use_result();
         }
     } else {
         die("Error creating tables: " . $conn->error);
+    }
+
+    // 检查是否有 id = 1 的记录
+    $sql = "SELECT COUNT(*) AS count FROM short_rules WHERE id = 1";
+    $result = $conn->query($sql);
+    $data = $result->fetch_assoc();
+
+    if ($data['count'] == 0) {
+        // 如果没有 id = 1 的记录，则插入新记录
+        $sql = "INSERT INTO short_rules (id, total_rules, today_new_rules, total_visits, today_visits, last_rule_update, last_visits_update)
+                VALUES (1, 0, 0, 0, 0, '2024-01-01', '2024-01-01')";
+        
+        $conn->query($sql);
     }
 
     return $conn;
