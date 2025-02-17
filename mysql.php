@@ -388,7 +388,7 @@ if ($link) {
         echo $link['value'];
         exit;
     } else {
-        header("Content-Type: text/html; charset=utf-8");
+        header("Content-Type: text/plain; charset=utf-8");
         echo "{$link['value']}";
 exit;
     }
