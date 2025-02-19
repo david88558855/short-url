@@ -139,8 +139,7 @@ if ($path == ADMIN_PATH) {
     echo str_replace(["{{totalRules}}", "{{todayNewRules}}", "{{totalvisits}}", "{{todayvisits}}"], [$totalRules, $todayNewRules, $totalVisits, $todayVisits], $indexWithStats);
     exit;
 }
-
-if (strpos($path, API_PATH) === 0) {
+if ($path == API_PATH) {
     $body = getPostData();
     $clientIp = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
     $short_type = $body['type'] ?? 'link';
@@ -151,6 +150,10 @@ if (strpos($path, API_PATH) === 0) {
     }
     if ($body[URL_NAME] === 'api') {
     echo json_encode(['error' => '错误！该后缀为API调用，请使用其他后缀。'], JSON_UNESCAPED_UNICODE);
+    exit;
+    }
+    if (empty($body[URL_KEY])) {
+    echo json_encode(['error' => '错误！长网址或文本或html源代码不能为空。'], JSON_UNESCAPED_UNICODE);
     exit;
     }
     // 获取过期时间
