@@ -102,6 +102,19 @@ if ($path == ADMIN_PATH) {
     $result = $conn->query($sql);
     $shortRulesData = $result->fetch_assoc();
 
+    $today_new_rules = (int)$shortRulesData['today_new_rules'];
+    $todayVisits = (int)$shortRulesData['today_visits'];
+    $lastVisitsUpdate = $shortRulesData['last_visits_update'];
+    $last_rule_update = $shortRulesData['last_rule_update'];
+    $today = (new DateTime("now", new DateTimeZone('Asia/Shanghai')))->format('Y-m-d');
+
+    if ($lastVisitsUpdate !== $today || $last_rule_update !== $today) {
+        $todayVisits = 0;
+        $today_new_rules = 0;
+        $sql = "UPDATE short_rules SET today_new_rules = {$today_new_rules}, today_visits = {$todayVisits}, last_visits_update = '{$today}', last_rule_update = '{$today}' WHERE id = 1";
+        $conn->query($sql);
+    }
+
     if (!$shortRulesData) {
         $shortRulesData = [
             'total_rules' => '0',
