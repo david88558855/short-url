@@ -33,6 +33,23 @@ $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 if ($path == ADMIN_PATH) {
     // 从shortlink获取short_rules数据
     $shortRulesData = json_decode(file_get_contents('short_rules.json'), true);
+        $today_new_rules = (int)$shortRulesData['today_new_rules'];
+        $todayVisits = (int)$shortRulesData['today_visits'];
+        $lastVisitsUpdate = $shortRulesData['last_visits_update'];
+        $last_rule_update = $shortRulesData['last_rule_update'];
+        $today = (new DateTime("now", new DateTimeZone('Asia/Shanghai')))->format('Y-m-d');
+
+        if ($lastVisitsUpdate !== $today || $last_rule_update !== $today) {
+            $todayVisits = 0;
+            $today_new_rules = 0;
+            $shortRulesData['today_new_rules'] = (string)$today_new_rules;
+            $shortRulesData['today_visits'] = (string)$todayVisits;
+            $shortRulesData['last_visits_update'] = $today;
+            $shortRulesData['last_rule_update'] = $today;
+
+            file_put_contents('short_rules.json', json_encode($shortRulesData));
+        }
+
     if (!$shortRulesData) {
         $shortRulesData = [
             'total_rules' => '0',
@@ -76,20 +93,24 @@ if ($path == ADMIN_PATH) {
     exit;
 }
 
-if (strpos($path, API_PATH) === 0) {
+if ($path == API_PATH) {
     $body = getPostData();
     $clientIp = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
     $short_type = $body['type'] ?? 'link';
     $body[URL_NAME] = $body[URL_NAME] ?? substr(md5(uniqid()), 0, 6);
     // 从请求体中获取数据
-$body = json_decode(file_get_contents('php://input'), true);
+    $body = json_decode(file_get_contents('php://input'), true);
 
-// 如果没有提供后缀，生成一个随机后缀
-if (empty($body[URL_NAME])) {
+    // 如果没有提供后缀，生成一个随机后缀
+    if (empty($body[URL_NAME])) {
     $body[URL_NAME] = generateRandomString();
-}
+    }
     if ($body[URL_NAME] === 'api') {
     echo json_encode(['error' => '错误！该后缀为API调用，请使用其他后缀。'], JSON_UNESCAPED_UNICODE);
+    exit;
+    }
+    if (empty($body[URL_KEY])) {
+    echo json_encode(['error' => '错误！长网址或文本或html源代码不能为空。'], JSON_UNESCAPED_UNICODE);
     exit;
     }
     // 检查文件夹是否存在，如果不存在则创建
@@ -123,7 +144,7 @@ if (empty($body[URL_NAME])) {
     ];
 
     $jsonString = json_encode($linkData, JSON_UNESCAPED_UNICODE);
-file_put_contents("shortlinks/{$body[URL_NAME]}.json", $jsonString);
+    file_put_contents("shortlinks/{$body[URL_NAME]}.json", $jsonString);
     if ($isNewRule) {
         $shortRulesData = json_decode(file_get_contents('short_rules.json'), true);
         // 获取 shortlinks 文件夹中的 .json 文件数量
